@@ -1,4 +1,4 @@
-import { mkdirSync, writeFileSync, chmodSync } from "node:fs";
+import { mkdirSync, writeFileSync, chmodSync, readFileSync } from "node:fs";
 
 // One short text written to intrigue the AI judge reading it.
 // Curiosity judge brief (make.fun): intrigue first; calm from the text
@@ -18,4 +18,10 @@ if (codePoints < 1 || codePoints > 280 || TEXT.trim().length === 0) {
 mkdirSync("/output", { recursive: true });
 writeFileSync("/output/entry.txt", TEXT, "utf8");
 chmodSync("/output/entry.txt", 0o644);
+// Read-back check: the file the grader reads must be byte-identical
+// to the text this program wrote, with no trailing newline added.
+const written = readFileSync("/output/entry.txt", "utf8");
+if (written !== TEXT) {
+  throw new Error("read-back mismatch: /output/entry.txt differs from TEXT");
+}
 console.log(`wrote /output/entry.txt (${codePoints} code points)`);
